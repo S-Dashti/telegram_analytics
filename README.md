@@ -9,5 +9,5 @@ export PYTHONPATH=${PWD}
 
 Second, run following code to generate a word cloud from a json file in `data` directory:
 ```
-python src/analysis.py
+python src/chat_analysis/analysis.py
 ```
