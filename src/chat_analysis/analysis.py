@@ -1,5 +1,4 @@
 import json
-from collections import Counter
 from hazm import word_tokenize, Normalizer
 from wordcloud import WordCloud
 from pathlib import Path
@@ -43,12 +42,20 @@ class ChatAnalysis:
         self.data_str = ''
         for message in self.data['messages']:
             if type(message['text']) is str:
-                single_message = self.normalizer.normalize(message['text'])
-                single_message = single_message.replace('\u200c', ' ')
-                tokens = word_tokenize(single_message)
-                tokens = filter(lambda w: w not in self.stopwords, tokens)
-                tokens = map(self._alternative_word, tokens)
-                self.data_str += f" {' '.join(tokens)}"
+                self.data_str += self._text_tailor(message['text'])
+            else:
+                for item in message['text']:
+                    if type(item) is str:
+                        self.data_str += self._text_tailor(item)
+
+    #Inner tool for text processing
+    def _text_tailor(self, text):
+        text = self.normalizer.normalize(text)
+        text = text.replace('\u200c', ' ')
+        tokens = word_tokenize(text)
+        tokens = filter(lambda w: w not in self.stopwords, tokens)
+        tokens = map(self._alternative_word, tokens)
+        return f" {' '.join(tokens)}"
 
     #replace with proper alternative
     def _alternative_word(self, word):
@@ -83,7 +90,6 @@ class ChatAnalysis:
         save_path = str(save_path)
         self.wordcloud.to_file(save_path)
         return f'wordcloud image saved in: {save_path}'
-
 
 
 
