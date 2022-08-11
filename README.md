@@ -1,5 +1,5 @@
 # telegram_analytics
-Analysis telegram chats and generate word cloud. Also Generate bar plot from statistical data.
+Analysis telegram chats and generate word cloud. Also generate bar plot from statistical data.
 
 ## How to run
 First, add `src` to `PYTHONPATH` by run the following code in main repo directory:
