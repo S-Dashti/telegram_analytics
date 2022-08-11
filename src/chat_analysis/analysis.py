@@ -3,6 +3,7 @@ from hazm import word_tokenize, Normalizer
 from wordcloud import WordCloud
 from pathlib import Path
 from typing import Union
+import matplotlib.pyplot as plt
 
 from src.data import data_path
 
@@ -39,8 +40,16 @@ class ChatAnalysis:
         self.stopwords = set(self.stopwords)
         
         #process on chat data
+        self.stats = {}
         self.data_str = ''
         for message in self.data['messages']:
+            if 'from_id' not in message:
+                continue
+            if message['from_id'] not in self.stats:
+                self.stats[message['from_id']] = {'name':message['from'], 'num_of_messages':0, 'num_of_replies':0}
+            self.stats[message['from_id']]['num_of_messages'] += 1
+            if 'reply_to_message_id' in message:
+                self.stats[message['from_id']]['num_of_replies'] += 1
             if type(message['text']) is str:
                 self.data_str += self._text_tailor(message['text'])
             else:
@@ -63,6 +72,24 @@ class ChatAnalysis:
             return self.alternative_words[word]
         else:
             return word
+
+    #Generate bar plot from stats
+    def stat_show(self):
+        """Generate and show bar plot from statistical data. Such as number of messages and number of replies from each of active users separately.
+        """
+        names = []
+        height = []
+        for key in self.stats:
+            if self.stats[key]['name'] is None:
+                continue
+            if self.stats[key]['num_of_messages'] < 50:
+                continue
+            names.append(f"(m) {self.stats[key]['name'][:5]}")
+            names.append(f"(r) {self.stats[key]['name'][:5]}")
+            height.append(self.stats[key]['num_of_messages'])
+            height.append(self.stats[key]['num_of_replies'])
+        plt.bar(names, height, width=0.5)
+        plt.show()
 
     #Generate and show word cloud
     def generate_wordcloud(self, width: int=1200, height: int=800, font_path: Union[str, Path]=data_path / 'Vazir.ttf', background_color: str='white'):
@@ -100,4 +127,5 @@ if __name__ == '__main__':
     chat = ChatAnalysis(chat_data=data_path / 'result.json')
     chat.generate_wordcloud()
     print(chat.save_wordcloud())
+    chat.stat_show()
     print('Done')
